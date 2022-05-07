@@ -7,7 +7,7 @@ import com.example.tasktracker.service.EmployeeApplicationService
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 
-//@Component
+@Component
 class AccountConsumer(private val employeeApplicationService: EmployeeApplicationService) {
 
     @KafkaListener(topics = ["accounts-stream"])

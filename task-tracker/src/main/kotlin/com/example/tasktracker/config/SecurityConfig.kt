@@ -10,6 +10,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 
     override fun configure(http: HttpSecurity) {
         http.authorizeRequests()
+            .antMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
             .antMatchers("/**").authenticated()
             .and()
             .oauth2ResourceServer(OAuth2ResourceServerConfigurer<HttpSecurity>::opaqueToken)

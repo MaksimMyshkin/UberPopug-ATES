@@ -7,7 +7,9 @@ import com.example.tasktracker.service.TaskApplicationService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
@@ -24,7 +26,7 @@ class TaskController(private val taskApplicationService: TaskApplicationService)
     }
 
     @PostMapping
-    fun create(dto: TaskCreationDto): ResponseEntity<Void> {
+    fun create(@RequestBody dto: TaskCreationDto): ResponseEntity<Void> {
         val taskId = taskApplicationService.create(dto.title, dto.description)
         return ResponseEntity.created(URI("/tasks/$taskId")).build()
     }
@@ -37,7 +39,7 @@ class TaskController(private val taskApplicationService: TaskApplicationService)
 
     @PostMapping("/{id}/complete")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun complete(id: Long) {
+    fun complete(@PathVariable id: Long) {
         taskApplicationService.complete(id)
     }
 

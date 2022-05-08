@@ -1,14 +1,16 @@
 package com.example.tasktracker.domain
 
+import com.example.tasktracker.domain.event.DomainEvent
+import com.example.tasktracker.domain.event.TaskCompleted
+import com.example.tasktracker.domain.event.TaskAssigned
 import java.util.UUID
 import javax.persistence.*
 
 /**
  * @param assigneePublicId идентификатор сотрудника из Auth сервиса
  */
-// TODO Добавить генерацию событий при всех операциях
 @Entity
-class Task(
+class Task private constructor(
     val title: String,
     val description: String,
     assigneePublicId: UUID
@@ -23,17 +25,28 @@ class Task(
     var status: Status = Status.IN_PROGRESS
         private set
 
-    fun reassign(employeePublicId: UUID) {
+    fun reassign(employeePublicId: UUID): DomainEvent {
         assigneePublicId = employeePublicId
+        return TaskAssigned(id!!, assigneePublicId)
     }
 
-    fun complete() {
+    fun complete(): DomainEvent {
         check(status == Status.IN_PROGRESS)
         status = Status.COMPLETED
+        return TaskCompleted(id!!)
     }
 
     enum class Status {
         IN_PROGRESS,
         COMPLETED
+    }
+
+    companion object {
+
+        fun create(title: String, description: String, assigneePublicId: UUID): Pair<Task, DomainEvent> {
+            val task = Task(title, description, assigneePublicId)
+            val event = TaskAssigned(task.id!!, assigneePublicId)
+            return Pair(task, event)
+        }
     }
 }

@@ -1,17 +1,19 @@
 package com.example.tasktracker.service
 
 import com.example.tasktracker.domain.Task
+import com.example.tasktracker.domain.event.TaskCreated
+import com.example.tasktracker.producer.TaskEventProducer
 import com.example.tasktracker.repository.TaskRepository
 import com.example.tasktracker.security.CurrentUserContext
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
-// TODO На всех операциях добавить отправку сгенерированных Task событий в kafka
 @Service
 class TaskApplicationService(
     private val taskRepository: TaskRepository,
     private val employeeDomainService: EmployeeDomainService,
-    private val currentUserContext: CurrentUserContext
+    private val currentUserContext: CurrentUserContext,
+    private val taskEventProducer: TaskEventProducer
 ) {
 
     fun findAssigned(): Iterable<Task> {
@@ -19,14 +21,20 @@ class TaskApplicationService(
     }
 
     fun create(title: String, description: String): Long {
-        val task = Task(title, description, employeeDomainService.randomWorkerPublicId())
-        return taskRepository.save(task).id!!
+        var (task, event) = Task.create(title, description, employeeDomainService.findRandomWorkerPublicId())
+        task = taskRepository.save(task)
+
+        taskEventProducer.send(TaskCreated(task))
+        taskEventProducer.send(event)
+        return task.id!!
     }
 
     fun reassignAllTasks() {
         check(currentUserContext.hasAnyRole("admin", "manager"))
         for (task in taskRepository.findAll()) {
-            task.reassign(employeeDomainService.randomWorkerPublicId())
+            val event = task.reassign(employeeDomainService.findRandomWorkerPublicId())
+            taskRepository.save(task)
+            taskEventProducer.send(event)
         }
     }
 
@@ -35,7 +43,8 @@ class TaskApplicationService(
             ?: throw IllegalArgumentException("Задача c id=$taskId не найдена")
         check(task.assigneePublicId == currentUserContext.publicId)
 
-        task.complete()
+        val event = task.complete()
         taskRepository.save(task)
+        taskEventProducer.send(event)
     }
 }

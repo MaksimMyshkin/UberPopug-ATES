@@ -7,7 +7,7 @@ import java.util.UUID
 @Service
 class EmployeeDomainService(private val employeeRepository: EmployeeRepository) {
 
-    fun randomWorkerPublicId(): UUID {
-        TODO()
+    fun findRandomWorkerPublicId(): UUID {
+        return UUID.fromString(employeeRepository.findRandomWorkerPublicId())
     }
 }

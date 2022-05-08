@@ -9,8 +9,9 @@ class AccountEvent(
     val eventName: String,
     val data: Data
 ) {
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
     class Data(
         val publicId: UUID,
-        val fullName: String?,
+        val role: String?
     )
 }

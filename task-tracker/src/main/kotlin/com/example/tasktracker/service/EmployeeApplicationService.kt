@@ -8,13 +8,13 @@ import java.util.UUID
 @Service
 class EmployeeApplicationService(private val employeeRepository: EmployeeRepository) {
 
-    fun create(publicId: UUID, fullName: String?) {
-        employeeRepository.save(Employee(publicId, fullName))
+    fun create(publicId: UUID) {
+        employeeRepository.save(Employee(publicId))
     }
 
-    fun updateName(publicId: UUID, fullName: String?) {
+    fun changeRole(publicId: UUID, role: String) {
         val employee = employeeRepository.findByPublicId(publicId)
-        employee.updateName(fullName)
+        employee.changeRole(role)
         employeeRepository.save(employee)
     }
 

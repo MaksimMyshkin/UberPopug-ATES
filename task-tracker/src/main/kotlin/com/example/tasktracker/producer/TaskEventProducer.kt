@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component
 class TaskEventProducer(private val kafkaTemplate: KafkaTemplate<Long, Any>) {
 
     fun send(event: CudEvent) {
-        kafkaTemplate.send("tasks-stream", event.aggregateId, event)
+        kafkaTemplate.send("tasks-stream", event.aggregateId, event).get()
     }
 
     fun send(event: DomainEvent) {
-        kafkaTemplate.send("tasks", event.aggregateId, event)
+        kafkaTemplate.send("tasks", event.aggregateId, event).get()
     }
 }

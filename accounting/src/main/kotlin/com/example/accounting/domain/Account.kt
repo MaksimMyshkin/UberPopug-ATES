@@ -35,13 +35,15 @@ class Account(
         transactions.add(Transaction(amount, description))
     }
 
-    fun payEarnings() {
-        if (balance < BigDecimal.ZERO) {
-            logger.info("Аккаунт владельца $ownerPublicId имеет отрицательный баланс $balance. " +
+    fun payEarnings(): BigDecimal {
+        if (balance <= BigDecimal.ZERO) {
+            logger.info("Аккаунт владельца $ownerPublicId имеет отрицательный или нулевой баланс $balance. " +
                     "Выплата не производится.")
-            return
+            return BigDecimal.ZERO
         }
         logger.info("Владельцу аккаунта $ownerPublicId выплачено $balance")
+        val paidAmount = balance
         balance = BigDecimal.ZERO
+        return paidAmount
     }
 }

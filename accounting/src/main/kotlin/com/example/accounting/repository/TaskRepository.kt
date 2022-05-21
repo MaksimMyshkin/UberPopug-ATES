@@ -9,6 +9,6 @@ interface TaskRepository : CrudRepository<Task, Long> {
 
     fun findByPublicId(publicId: UUID): Task
 
-    @Query("from Task where creditedOnCompletionAmount = max(creditedOnCompletionAmount)")
+    @Query("from Task where creditedOnCompletionAmount = (select max(creditedOnCompletionAmount) from Task)")
     fun findMostExpensiveTodayTask(): Task
 }

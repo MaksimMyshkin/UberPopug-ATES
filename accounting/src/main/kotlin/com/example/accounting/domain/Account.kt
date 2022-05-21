@@ -10,7 +10,8 @@ class Account(
     @Column(unique = true)
     val ownerPublicId: UUID,
 
-    val ownerEmail: String
+    // TODO Заполнять из событий Auth сервиса
+    val ownerEmail: String = "todo@example.com"
 ) {
     @Transient
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -22,7 +23,7 @@ class Account(
     var balance: BigDecimal = BigDecimal.ZERO
         private set
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     val transactions: MutableList<Transaction> = mutableListOf()
 
     fun debitMoney(amount: BigDecimal, description: String) {

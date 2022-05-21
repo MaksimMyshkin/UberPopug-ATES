@@ -8,12 +8,22 @@ import kotlin.random.Random
 @Entity
 class Task(
     @Column(unique = true)
-    val publicId: UUID
+    val publicId: UUID,
+
+    assigneePublicId: UUID
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
-    val debitedOnAssignmentAmount: BigDecimal = BigDecimal.valueOf(Random.Default.nextLong(-20, -9))
+    val debitedOnAssignmentAmount: BigDecimal = BigDecimal.valueOf(Random.Default.nextLong(10, 21))
+
     val creditedOnCompletionAmount: BigDecimal = BigDecimal.valueOf(Random.Default.nextLong(20,41))
+
+    var assigneePublicId = assigneePublicId
+        private set
+
+    fun assign(employeePublicId: UUID) {
+        assigneePublicId = employeePublicId
+    }
 }

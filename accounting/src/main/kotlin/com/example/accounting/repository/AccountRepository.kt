@@ -10,7 +10,10 @@ interface AccountRepository : CrudRepository<Account, Long> {
 
     fun findByOwnerPublicId(ownerPublicId: UUID): Account
 
-    @Query("select sum(amount_change) from transaction where timestamp >= now() - '1 day'::interval",
+    @Query("from Account where ownerPublicId = :ownerPublicId")
+    fun findByOwnerPublicIdOrNull(ownerPublicId: UUID): Account?
+
+    @Query("select sum(amount_change) from transaction where timestamp >= now() - interval '1 day'",
         nativeQuery = true)
     fun findEarnedByManagementToday(): BigDecimal
 

@@ -3,6 +3,7 @@ package com.example.tasktracker.domain
 import com.example.tasktracker.domain.event.DomainEvent
 import com.example.tasktracker.domain.event.TaskCompleted
 import com.example.tasktracker.domain.event.TaskAssigned
+import com.example.tasktracker.domain.event.TaskCreated
 import java.util.UUID
 import javax.persistence.*
 
@@ -19,21 +20,23 @@ class Task private constructor(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
+    val publicId: UUID = UUID.randomUUID()
+
     var assigneePublicId: UUID = assigneePublicId
         private set
 
     var status: Status = Status.IN_PROGRESS
         private set
 
-    fun reassign(employeePublicId: UUID): DomainEvent {
+    fun assign(employeePublicId: UUID): DomainEvent {
         assigneePublicId = employeePublicId
-        return TaskAssigned(id!!, assigneePublicId)
+        return TaskAssigned(publicId, assigneePublicId)
     }
 
     fun complete(): DomainEvent {
         check(status == Status.IN_PROGRESS)
         status = Status.COMPLETED
-        return TaskCompleted(id!!)
+        return TaskCompleted(publicId)
     }
 
     enum class Status {
@@ -45,7 +48,7 @@ class Task private constructor(
 
         fun create(title: String, description: String, assigneePublicId: UUID): Pair<Task, DomainEvent> {
             val task = Task(title, description, assigneePublicId)
-            val event = TaskAssigned(task.id!!, assigneePublicId)
+            val event = TaskCreated(task.publicId, title, description, assigneePublicId)
             return Pair(task, event)
         }
     }

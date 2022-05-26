@@ -1,7 +1,6 @@
 package com.example.tasktracker.service
 
 import com.example.tasktracker.domain.Task
-import com.example.tasktracker.domain.event.TaskCreated
 import com.example.tasktracker.producer.TaskEventProducer
 import com.example.tasktracker.repository.TaskRepository
 import com.example.tasktracker.security.CurrentUserContext
@@ -23,8 +22,6 @@ class TaskApplicationService(
     fun create(title: String, description: String): Long {
         var (task, event) = Task.create(title, description, employeeDomainService.findRandomWorkerPublicId())
         task = taskRepository.save(task)
-
-        taskEventProducer.send(TaskCreated(task))
         taskEventProducer.send(event)
         return task.id!!
     }
@@ -32,7 +29,7 @@ class TaskApplicationService(
     fun reassignAllTasks() {
         check(currentUserContext.hasAnyRole("admin", "manager"))
         for (task in taskRepository.findAll()) {
-            val event = task.reassign(employeeDomainService.findRandomWorkerPublicId())
+            val event = task.assign(employeeDomainService.findRandomWorkerPublicId())
             taskRepository.save(task)
             taskEventProducer.send(event)
         }
